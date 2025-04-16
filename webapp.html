@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Office Trivia Game</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #e6ecf1;
+      color: #1e1e1e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: #ffffff;
+      border: 3px solid #1b365d;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      padding: 2rem;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+    }
+    h1 {
+      color: #1b365d;
+      font-size: 2rem;
+      margin-bottom: 1.2rem;
+    }
+    .question {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+    .choices button {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 2px solid #1b365d;
+      border-radius: 8px;
+      background-color: #f0f4f8;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+    .choices button:hover {
+      background-color: #d0e0f0;
+      transform: scale(1.02);
+    }
+    #nextBtn {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #1b365d;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #nextBtn:hover {
+      background-color: #2b4a78;
+    }
+    .score {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: #1b365d;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dunder Mifflin Trivia</h1>
+    <div class="question" id="question"></div>
+    <div class="choices" id="choices"></div>
+    <button id="nextBtn">Next Question</button>
+    <div class="score" id="score"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "What is the name of the company in 'The Office'?",
+        choices: ["Dunder Mifflin", "Wernham Hogg", "Staples", "Sabre"],
+        answer: "Dunder Mifflin"
+      },
+      {
+        question: "What is Michael Scott's middle name?",
+        choices: ["Gary", "James", "Scott", "John"],
+        answer: "Gary"
+      },
+      {
+        question: "Who started the fire that caused the evacuation drill?",
+        choices: ["Dwight", "Ryan", "Michael", "Creed"],
+        answer: "Ryan"
+      },
+      {
+        question: "What is Jim's favorite prank on Dwight?",
+        choices: ["Putting his stuff in Jello", "Moving his desk", "Faxes from Future Dwight", "All of the above"],
+        answer: "All of the above"
+      },
+      {
+        question: "Who is Pam's first fiancé?",
+        choices: ["Roy", "Jim", "Toby", "Andy"],
+        answer: "Roy"
+      },
+      {
+        question: "What item of clothing does Michael burn his foot on?",
+        choices: ["A George Foreman grill", "A curling iron", "A coffee pot", "A hair straightener"],
+        answer: "A George Foreman grill"
+      },
+      {
+        question: "What is Dwight's cousin's name?",
+        choices: ["Mose", "Zeke", "Zane", "Gabe"],
+        answer: "Mose"
+      },
+      {
+        question: "Which character went to Cornell University?",
+        choices: ["Andy", "Dwight", "Ryan", "Oscar"],
+        answer: "Andy"
+      },
+      {
+        question: "Who is the receptionist after Pam?",
+        choices: ["Erin", "Angela", "Kelly", "Meredith"],
+        answer: "Erin"
+      },
+      {
+        question: "Which holiday does Dwight take very seriously?",
+        choices: ["Halloween", "Christmas", "Arbor Day", "Groundhog Day"],
+        answer: "Christmas"
+      },
+      {
+        question: "What is the name of Jan's baby?",
+        choices: ["Astrid", "Asturd", "Ashley", "Avery"],
+        answer: "Astrid"
+      },
+      {
+        question: "Who is the hottest in the Office?",
+        choices: ["Jim", "Ryan", "Meredith", "Kevin"],
+        answer: "Ryan"
+      },
+      {
+        question: "What kind of farm does Dwight own?",
+        choices: ["Beet farm", "Potato farm", "Corn farm", "Soybean farm"],
+        answer: "Beet farm"
+      },
+      {
+        question: "Who says 'I'm not superstitious, but I am a little stitious'?",
+        choices: ["Michael", "Jim", "Dwight", "Kevin"],
+        answer: "Michael"
+      },
+      {
+        question: "What is Creed's job title?",
+        choices: ["Quality Assurance", "Salesman", "Customer Service", "Janitor"],
+        answer: "Quality Assurance"
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById("question");
+    const choicesEl = document.getElementById("choices");
+    const nextBtn = document.getElementById("nextBtn");
+    const scoreEl = document.getElementById("score");
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      questionEl.textContent = q.question;
+      choicesEl.innerHTML = "";
+      q.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.textContent = choice;
+        btn.onclick = () => selectAnswer(choice);
+        choicesEl.appendChild(btn);
+      });
+      nextBtn.style.display = "none";
+    }
+
+    function selectAnswer(choice) {
+      const correct = questions[currentQuestion].answer;
+      if (choice === correct) {
+        score++;
+      }
+      Array.from(choicesEl.children).forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === correct) {
+          btn.style.backgroundColor = "#8BC34A";
+        } else {
+          btn.style.backgroundColor = "#f44336";
+        }
+      });
+      nextBtn.style.display = "inline-block";
+    }
+
+    nextBtn.onclick = () => {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      } else {
+        showScore();
+      }
+    };
+
+    function showScore() {
+      questionEl.textContent = "Quiz Complete!";
+      choicesEl.innerHTML = "";
+      nextBtn.style.display = "none";
+      scoreEl.textContent = `You got ${score} out of ${questions.length} correct!`;
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
